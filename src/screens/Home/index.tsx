@@ -3,15 +3,31 @@ import {
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  FlatList
 } from "react-native";
 
 import { HomeStyles } from "./styles";
-import { Participant } from "../../components";
+import { MessageEmptyList, Participant } from "../../components";
 
+type Participant = {
+  id: string;
+  name: string;
+}
 export const Home = () => {
 
-  const participants = ['David', 'Raiane', 'Afonso', 'David', 'Raiane', 'Afonso', 'David', 'Raiane', 'Afonso'];
+  const participants: Participant[] = [
+    { id: '1', name: 'David' },
+    { id: '2', name: 'Raiane' },
+    { id: '3', name: 'Afonso' },
+    { id: '4', name: 'Edson' },
+    { id: '5', name: 'Marli' },
+    { id: '6', name: 'Maura' },
+    { id: '7', name: 'Clodoviu' },
+    { id: '8', name: 'Barba' },
+    { id: '9', name: 'Carlos' },
+    { id: '10', name: 'Julio' },
+  ];
 
   const handleParticipantAdd = () => {
     console.log('Voce clicou');
@@ -44,13 +60,16 @@ export const Home = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {
-          participants.map((participant, index) => (
-            <Participant key={index} name={participant} onRemove={() => handleParticipantRemove(participant)} />
-          ))
-        }
-      </ScrollView>
+      <FlatList
+        data={participants}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <Participant name={item.name} onRemove={() => handleParticipantRemove(item.name)}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={<MessageEmptyList message="Nenhum convidado chegou ao evento ainda." />}
+      />
     </View>
   );
 }

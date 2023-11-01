@@ -1,14 +1,16 @@
+import { useState } from "react";
 import {
   Text,
   TextInput,
   View,
   TouchableOpacity,
-  ScrollView,
-  FlatList
+  FlatList,
+  Alert
 } from "react-native";
 
 import { HomeStyles } from "./styles";
 import { MessageEmptyList, Participant } from "../../components";
+import uuid from 'react-native-uuid';
 
 type Participant = {
   id: string;
@@ -16,25 +18,64 @@ type Participant = {
 }
 export const Home = () => {
 
-  const participants: Participant[] = [
-    { id: '1', name: 'David' },
-    { id: '2', name: 'Raiane' },
-    { id: '3', name: 'Afonso' },
-    { id: '4', name: 'Edson' },
-    { id: '5', name: 'Marli' },
-    { id: '6', name: 'Maura' },
-    { id: '7', name: 'Clodoviu' },
-    { id: '8', name: 'Barba' },
-    { id: '9', name: 'Carlos' },
-    { id: '10', name: 'Julio' },
-  ];
+  const [participants, setparticipants] = useState<Participant[]>([]);
+  const [participantName, setParticipantName] = useState('');
 
   const handleParticipantAdd = () => {
-    console.log('Voce clicou');
+
+    if (!participantName) {
+      return;
+    }
+
+    const participantExists = participants.find(p => p.name === participantName);
+
+    if (participantExists) {
+      Alert.alert('Participante Existe', 'Ja existe um participante com este nome.');
+      return;
+    }
+
+    const key = uuid.v4().toString();
+    setparticipants([
+      ...participants,
+      {
+        id: key,
+        name: participantName
+      }
+    ]);
+    setParticipantName('');
   }
 
-  const handleParticipantRemove = (name: string) => {
-    console.log('Voce removeyu' + name);
+  const handleParticipantRemove = (item: Participant) => {
+    const participant = participants.find(p => {
+      if (item.id == p.id) {
+        return p
+      }
+    });
+
+    if (!participant) {
+      console.log('usuario nao encontrado');
+      return;
+    }
+
+    Alert.alert('Remover', `Remover o participante ${item.name}?`, [
+      {
+        text: 'Sim',
+        onPress: () => {
+          const index = participants.findIndex(p => {
+            if (item.id == p.id) {
+              return p
+            }
+          });
+          participants.splice(index, 1);
+          setparticipants([...participants]);
+          Alert.alert('Removido da lista!')
+        }
+      },
+      {
+        text: 'Nao',
+        style: 'cancel'
+      }
+    ]);
   }
 
   return (
@@ -50,6 +91,8 @@ export const Home = () => {
           style={HomeStyles.input}
           placeholder="Nome do participante"
           placeholderTextColor="#6B6B6B"
+          onChangeText={txt => setParticipantName(txt)}
+          value={participantName}
         />
         <TouchableOpacity
           style={HomeStyles.btn}
@@ -64,7 +107,7 @@ export const Home = () => {
         data={participants}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <Participant name={item.name} onRemove={() => handleParticipantRemove(item.name)}
+          <Participant name={item.name} onRemove={() => handleParticipantRemove(item)}
           />
         )}
         showsVerticalScrollIndicator={false}

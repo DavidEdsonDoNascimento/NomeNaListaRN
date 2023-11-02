@@ -46,28 +46,12 @@ export const Home = () => {
   }
 
   const handleParticipantRemove = (item: Participant) => {
-    const participant = participants.find(p => {
-      if (item.id == p.id) {
-        return p
-      }
-    });
-
-    if (!participant) {
-      console.log('usuario nao encontrado');
-      return;
-    }
-
     Alert.alert('Remover', `Remover o participante ${item.name}?`, [
       {
         text: 'Sim',
         onPress: () => {
-          const index = participants.findIndex(p => {
-            if (item.id == p.id) {
-              return p
-            }
-          });
-          participants.splice(index, 1);
-          setparticipants([...participants]);
+          const newList = participants.filter(p => item.id !== p.id);
+          setparticipants([...newList]);
           Alert.alert('Removido da lista!')
         }
       },
